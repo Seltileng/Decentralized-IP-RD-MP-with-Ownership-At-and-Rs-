@@ -1,0 +1,10 @@
+{
+  "contracts/IPFSStorage.sol": {
+    "__sources__": {
+      "contracts/IPFSStorage.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n/// @title IPFSStorage\n/// @notice Stores and retrieves IPFS content identifiers (CIDs) on-chain.\ncontract IPFSStorage {\n    struct FileRecord {\n        string cid;\n        string name;\n        uint256 timestamp;\n    }\n\n    mapping(address => FileRecord[]) private filesByOwner;\n\n    event FileStored(\n        address indexed owner,\n        uint256 indexed fileId,\n        string cid,\n        string name\n    );\n\n    error EmptyCID();\n    error InvalidFileId();\n\n    function storeFile(string calldata cid, string calldata name)\n        external\n        returns (uint256 fileId)\n    {\n        if (bytes(cid).length == 0) revert EmptyCID();\n\n        fileId = filesByOwner[msg.sender].length;\n        filesByOwner[msg.sender].push(\n            FileRecord({cid: cid, name: name, timestamp: block.timestamp})\n        );\n\n        emit FileStored(msg.sender, fileId, cid, name);\n    }\n\n    function getFile(address owner, uint256 fileId)\n        external\n        view\n        returns (FileRecord memory)\n    {\n        if (fileId >= filesByOwner[owner].length) revert InvalidFileId();\n        return filesByOwner[owner][fileId];\n    }\n\n    function getFiles(address owner)\n        external\n        view\n        returns (FileRecord[] memory)\n    {\n        return filesByOwner[owner];\n    }\n\n    function getFileCount(address owner) external view returns (uint256) {\n        return filesByOwner[owner].length;\n    }\n}\n",
+        "file": "contracts/IPFSStorage.sol"
+      }
+    }
+  }
+}
